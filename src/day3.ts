@@ -37,38 +37,34 @@ Use the binary numbers in your diagnostic report to calculate the gamma rate and
 
 import { binaryPositions } from './constants/binary_positions';
 
+// copies a size of the index within the dataset
+let sum = Array(binaryPositions[0].length).fill(0);
+let gamma = '';
+let epsilon = '';
 
-let result: string = '';
-
-const reducePositons = (index:number,  positions: string[]) => {
-    let zeroes = []
-    let ones = []
-    // keeps track of the positive digits 
-    let count = 0 
-    let total;
-    for (let i = 0; i < positions.length; i++){
-        const position = positions[i];
-        if(Number(position[index]) === 0){    
-            ones.push(position)
-            count +=1;
-        }else{
-            zeroes.push(position)
+for (let i = 0; i < binaryPositions.length; i++){
+    const position = binaryPositions[i];
+    for(let k = 0; k < position.length; k++){
+        if(Number(position[k])){
+            // count the number of positive bits (1) for the individual indexes
+            sum[k] += 1
         }
-    
-        // at the end of the loop
-        if(i === (positions.length - 1)){
-            // determine whether to use ones or zereos
-            total = count > (positions.length / 2) ? ones : zeroes
-            if(total.length == 1 && index === (position.length - 1 )){
-                result = total[0]
+        // at the of the for loop build the gamma and epsilon
+        if(i === (binaryPositions.length - 1)){
+            if(sum[k] > ( binaryPositions.length / 2 )){
+                // when the sum index has more postive values than negative
+                gamma += '1';
+                epsilon += '0';
             }else{
-                index +=1;
-                reducePositons(index, total)
-            } 
+                // when the sum index has more negative values than positive
+                gamma += '0';
+                epsilon += '1';
+            }
         }
-    }
+    };
 }
+// converting from binary to decimal
+const gammaDecimal = parseInt(gamma, 2)
+const epsilonDecimal = parseInt(epsilon, 2)
 
-reducePositons(0, binaryPositions)
-console.log(`As there is only one number left, stop; the oxygen generator rating is ${result}, or ${parseInt(result, 2)} in decimal.`);
-
+console.log(`The gamma rate is the binary number ${gamma}, or ${gammaDecimal}. The epsilon rate is ${epsilon}, or ${epsilonDecimal} in decimal. Multiplying the gamma rate (${gamma}) by the epsilon rate (${epsilon}) produces the power consumption, ${epsilonDecimal * gammaDecimal }.`)
